@@ -3,25 +3,25 @@
 #include <string.h>
 
 typedef struct {
-    uint8_t key;
-    uint8_t offset;
-    uint8_t length;
+    uint8_t* key;
+    uint8_t  offset;
+    uint8_t  length;
 } INDEX;
 
 typedef struct {
-    INDEX* indexes;
+    INDEX*  indexes;
     uint8_t dataSize;
     uint8_t tableSize; 
     uint8_t top;
 } INDEX_FILE;
 
 void blob(INDEX_FILE* index, FILE* buffer) {
-    size_t totalSize     = sizeof(uint8_t) * index->dataSize;
+    size_t   totalSize   = sizeof(uint8_t) * index->dataSize;
     uint8_t* indexStruct = (uint8_t*)malloc(totalSize);
 
     for (int i = 0; i < index->top; i++) {
         memcpy(indexStruct + index->indexes[i].offset,
-               &index->indexes[i].key, index->indexes[i].length);
+               index->indexes[i].key, index->indexes[i].length);
     }
 
     fwrite(indexStruct, totalSize, 1, buffer);
@@ -40,7 +40,7 @@ int main() {
     for (int i = 0; i < index.tableSize; i++) {
         char* data = "Hello World!";
 
-        index.indexes[i].key    = (uint8_t)(data[0]);
+        index.indexes[i].key    = (uint8_t*)&(data[0]);
         index.indexes[i].length = (uint8_t)(strlen(data));
         index.indexes[i].offset = (uint8_t)(strlen(data) * i);
 
@@ -55,3 +55,4 @@ int main() {
 
     return 0;
 }
+
